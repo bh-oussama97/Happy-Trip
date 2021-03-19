@@ -30,9 +30,9 @@
         <link href="{{ asset('assets/vendor/owl.carousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
         <link href="{{ asset('assets/vendor/venobox/venobox.css') }}" rel="stylesheet">
         <link href="{{ asset('assets/vendor/aos/aos.css') }}" rel="stylesheet">
-
-        <!-- Template Main CSS File -->
         <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+        <link data-require="fontawesome@*" data-semver="4.5.0" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.css" />
+
     {% endblock %}
 
     <!-- =======================================================
@@ -49,10 +49,14 @@
 <body>
 
 {% block header %}
-    <header id="header" class="fixed-top">
+    <header id="header" class="fixed-top" style="top:0px;">
         <div class="container d-flex align-items-center">
-            <img src="{{ asset('assets/img/logo.png') }}" alt="">
-            <h1 class="logo mr-auto"><a href="{{ asset('index.html') }}">Happy-Trip</a></h1>
+            <div class="container" style="    margin-left: -132px;display: flex!important;">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="">
+                <h1 style="    padding-top: 29px;
+    margin-bottom: 24px;letter-spacing: 0px;" class="logo mr-auto"><a href="{{ asset('home') }}" >Happy-Trip</a></h1>
+            </div>
+
             <!-- Uncomment below if you prefer to use an image logo -->
             <!-- <a href="index.html" class="logo mr-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
 
@@ -63,7 +67,7 @@
                     <li><a href="#menu"></a>Menu</li>
                     <li><a href="#specials">Promotions</a></li>
                     <li><a href="#events">Events</a></li>
-                    <li><a href="{{ path('ADD') }}">Hotels</a></li>
+                    <li><a href="{{ path('afficheHotel') }}">Hotels</a></li>
                     <li><a href="#chefs">Offres</a></li>
                     <li><a href="#reclamation">Reclamation</a></li>
                     <li><a href="#joinUs">JoinUs</a></li>
@@ -711,7 +715,7 @@
             </section><!-- End Gallery Section -->
         {% endblock %}
 
-        {% block chefs %}
+        {% block hotels %}
             <!-- ======= Chefs Section ======= -->
             <section id="chefs" class="chefs">
                 <div class="container" data-aos="fade-up">

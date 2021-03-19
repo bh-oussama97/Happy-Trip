@@ -3,14 +3,21 @@
 namespace App\Entity;
 
 use App\Repository\HotelRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity(repositoryClass=HotelRepository::class)
+ * @Vich\Uploadable
  */
 class Hotel
 {
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -21,107 +28,217 @@ class Hotel
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $Nom;
+    private $name;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $NombreEtoile;
+    private $starsNumber;
+
+    /**
+     * @var string
+     * @ORM\Column(type="text", length=65535)
+     * @Assert\NotBlank(message="your message")
+     **/
+    private $description;
+
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $options;
+    private $localisation;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $Prix;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $Destination;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
     private $image;
 
-    public function getId(): ?int
+
+    /**
+     * @Vich\UploadableField(mapping="happyTrip_images", fileNameProperty="image")
+     * @Assert\NotBlank(message="please select an image")
+     * @var File
+     */
+    private $imageHotel;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Comments::class, mappedBy="hotel_comments")
+     */
+    private $comments;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Reservation::class, mappedBy="hotel_reservation", cascade={"persist", "remove"})
+     */
+    private $reservation;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getNom(): ?string
+    /**
+     * @param mixed $id
+     */
+    public function setId($id): void
     {
-        return $this->Nom;
+        $this->id = $id;
     }
 
-    public function setNom(string $Nom): self
+    /**
+     * @return mixed
+     */
+    public function getName()
     {
-        $this->Nom = $Nom;
-
-        return $this;
+        return $this->name;
     }
 
-    public function getNombreEtoile(): ?int
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
     {
-        return $this->NombreEtoile;
+        $this->name = $name;
     }
 
-    public function setNombreEtoile(int $NombreEtoile): self
+    /**
+     * @return mixed
+     */
+    public function getStarsNumber()
     {
-        $this->NombreEtoile = $NombreEtoile;
-
-        return $this;
+        return $this->starsNumber;
     }
 
-    public function getOptions(): ?string
+    /**
+     * @param mixed $starsNumber
+     */
+    public function setStarsNumber($starsNumber): void
     {
-        return $this->options;
+        $this->starsNumber = $starsNumber;
     }
 
-    public function setOptions(string $options): self
+    /**
+     * @return mixed
+     */
+    public function getDescription()
     {
-        $this->options = $options;
-
-        return $this;
+        return $this->description;
     }
 
-    public function getPrix(): ?int
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description): void
     {
-        return $this->Prix;
+        $this->description = $description;
     }
 
-    public function setPrix(int $Prix): self
-    {
-        $this->Prix = $Prix;
 
-        return $this;
+
+    /**
+     * @return mixed
+     */
+    public function getLocalisation()
+    {
+        return $this->localisation;
     }
 
-    public function getDestination(): ?string
+    /**
+     * @param mixed $localisation
+     */
+    public function setLocalisation($localisation): void
     {
-        return $this->Destination;
+        $this->localisation = $localisation;
     }
 
-    public function setDestination(string $Destination): self
-    {
-        $this->Destination = $Destination;
-
-        return $this;
-    }
-
-    public function getImage(): ?string
+    /**
+     * @return mixed
+     */
+    public function getImage()
     {
         return $this->image;
     }
 
-    public function setImage(string $image): self
+    /**
+     * @param mixed $image
+     */
+    public function setImage($image): void
     {
         $this->image = $image;
+    }
+
+    /**
+     * @return File
+     */
+    public function getImageHotel(): File
+    {
+        return $this->imageHotel;
+    }
+
+    /**
+     * @param File $imageHotel
+     */
+    public function setImageHotel(File $imageHotel): void
+    {
+        $this->imageHotel = $imageHotel;
+    }
+
+    /**
+     * @return Collection|Comments[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comments $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setHotelComments($this);
+        }
 
         return $this;
     }
+
+    public function removeComment(Comments $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getHotelComments() === $this) {
+                $comment->setHotelComments(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getReservation(): ?Reservation
+    {
+        return $this->reservation;
+    }
+
+    public function setReservation(Reservation $reservation): self
+    {
+        // set the owning side of the relation if necessary
+        if ($reservation->getHotelReservation() !== $this) {
+            $reservation->setHotelReservation($this);
+        }
+
+        $this->reservation = $reservation;
+
+        return $this;
+    }
+
+
+
 }

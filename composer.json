@@ -6,7 +6,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "composer/package-versions-deprecated": "1.11.99.1",
-
         "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "^2.2",
         "doctrine/doctrine-migrations-bundle": "^3.0",
@@ -40,7 +39,11 @@
         "vich/uploader-bundle": "^1.16",
         "doctrine/common":"^3.1.0",
         "symfonycasts/verify-email-bundle": "^1.2",
-        "symfony/amazon-mailer": "4.4.*"
+        "symfony/amazon-mailer": "4.4.*",
+        "knplabs/knp-paginator-bundle": "^5.4",
+        "cr/hashcli": "dev-master",
+        "fungio/google-map:": "dev-master"
+
     },
     "require-dev": {
         "symfony/browser-kit": "^4.4",

@@ -6,6 +6,7 @@ use App\Entity\Hotel;
 use App\Form\HotelType;
 use App\Repository\HotelRepository;
 //use http\Env\Request;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +17,7 @@ use Twig\Environment;
 
 /**
  *
- * @Route ("/hotel")
+ * @Route ("/hotels")
  */
 class HotelController extends AbstractController
 {
@@ -34,27 +35,41 @@ class HotelController extends AbstractController
         $this->twig = $twig;
     }
 
+
+
     /**
-     * @Route("/", name="hotel")
+     * @param HotelRepository $repository
      * @return Response
+     * @Route("/all",name="afficheHotel")
      */
-    public function index(): Response
+    public function Affiche(Request $request,PaginatorInterface $paginator)
     {
-        return new Response($this->twig->render('hotel/index.html.twig', [
-            'controller_name' => 'HotelController',
-        ]));
+        $em = $this->getDoctrine()->getManager();
+
+        $hotel= $em->getRepository(Hotel::class)->findAll();
+
+        $hotel = $paginator->paginate(
+            $hotel,
+            $request->query->getInt('page',1),
+            3
+        );
+        return $this->render('hotel/Affiche.html.twig' , ['hotels'=>$hotel]);
     }
 
     /**
      * @param HotelRepository $repository
      * @return Response
-     * @Route("/AfficheHotel",name="AfficheHotel")
+     * @Route("/details/{id}",name="details_hotels")
      */
-    public function Affiche(HotelRepository $repository){
-        //$repo=$this->getDoctrine()->getRepository(Hotel::class) ;
-        $Hotel=$repository->findAll();
-        return $this->render('hotel/Affiche.html.twig' , ['Hotel'=>$Hotel]);
-    }
+
+        public function details($id,HotelRepository $repository)
+        {
+            $details_hotels = $repository->find($id);
+
+            return $this->render('hotel/Details.html.twig',['details'=>$details_hotels]);
+
+        }
+
 
     /**
      * @Route ("/Supp/{id}",name="d")

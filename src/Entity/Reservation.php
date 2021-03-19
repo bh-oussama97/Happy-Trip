@@ -18,108 +18,160 @@ class Reservation
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="datetime")
      */
-    private $TypeChambre;
+    private $startDate;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $endDate;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $NombreDeChambre;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $Pension;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $Dispo;
+    private $numberOfNights;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $nbrDeNuits;
+    private $numberOfrooms;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $numberOfAdults;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $numberOfChilds;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $categorieChambre;
+    private $roomType;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $total;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Hotel::class, inversedBy="reservation", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $hotel_reservation;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTypeChambre(): ?string
+    public function getStartDate(): ?\DateTimeInterface
     {
-        return $this->TypeChambre;
+        return $this->startDate;
     }
 
-    public function setTypeChambre(string $TypeChambre): self
+    public function setStartDate(\DateTimeInterface $startDate): self
     {
-        $this->TypeChambre = $TypeChambre;
+        $this->startDate = $startDate;
 
         return $this;
     }
 
-    public function getNombreDeChambre(): ?int
+    public function getEndDate(): ?\DateTimeInterface
     {
-        return $this->NombreDeChambre;
+        return $this->endDate;
     }
 
-    public function setNombreDeChambre(int $NombreDeChambre): self
+    public function setEndDate(\DateTimeInterface $endDate): self
     {
-        $this->NombreDeChambre = $NombreDeChambre;
+        $this->endDate = $endDate;
 
         return $this;
     }
 
-    public function getPension(): ?string
+    public function getNumberOfNights(): ?int
     {
-        return $this->Pension;
+        return $this->numberOfNights;
     }
 
-    public function setPension(string $Pension): self
+    public function setNumberOfNights(int $numberOfNights): self
     {
-        $this->Pension = $Pension;
+        $this->numberOfNights = $numberOfNights;
 
         return $this;
     }
 
-    public function getDispo(): ?string
+    public function getNumberOfrooms(): ?int
     {
-        return $this->Dispo;
+        return $this->numberOfrooms;
     }
 
-    public function setDispo(string $Dispo): self
+    public function setNumberOfrooms(int $numberOfrooms): self
     {
-        $this->Dispo = $Dispo;
+        $this->numberOfrooms = $numberOfrooms;
 
         return $this;
     }
 
-    public function getNbrDeNuits(): ?int
+    public function getNumberOfAdults(): ?int
     {
-        return $this->nbrDeNuits;
+        return $this->numberOfAdults;
     }
 
-    public function setNbrDeNuits(int $nbrDeNuits): self
+    public function setNumberOfAdults(int $numberOfAdults): self
     {
-        $this->nbrDeNuits = $nbrDeNuits;
+        $this->numberOfAdults = $numberOfAdults;
 
         return $this;
     }
 
-    public function getCategorieChambre(): ?string
+    public function getNumberOfChilds(): ?int
     {
-        return $this->categorieChambre;
+        return $this->numberOfChilds;
     }
 
-    public function setCategorieChambre(string $categorieChambre): self
+    public function setNumberOfChilds(int $numberOfChilds): self
     {
-        $this->categorieChambre = $categorieChambre;
+        $this->numberOfChilds = $numberOfChilds;
+
+        return $this;
+    }
+
+    public function getRoomType(): ?string
+    {
+        return $this->roomType;
+    }
+
+    public function setRoomType(string $roomType): self
+    {
+        $this->roomType = $roomType;
+
+        return $this;
+    }
+
+    public function getTotal(): ?float
+    {
+        return $this->total;
+    }
+
+    public function setTotal(float $total): self
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    public function getHotelReservation(): ?Hotel
+    {
+        return $this->hotel_reservation;
+    }
+
+    public function setHotelReservation(Hotel $hotel_reservation): self
+    {
+        $this->hotel_reservation = $hotel_reservation;
 
         return $this;
     }

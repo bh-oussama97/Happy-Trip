@@ -1,44 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block header %}
-    <header id="header" class="fixed-top">
-        <div class="container d-flex align-items-center">
-            <img src="{{ asset('assets/img/logo.png') }}" alt="">
-            <h1 class="logo mr-auto"><a href="{{ asset('index.html') }}">Happy-Trip</a></h1>
-            <!-- Uncomment below if you prefer to use an image logo -->
-            <!-- <a href="index.html" class="logo mr-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
-
-            <nav class="nav-menu d-none d-lg-block">
-                <ul>
-                    <li class="active"><a href="{{ path('home') }}">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#menu"></a>Menu</li>
-                    <li><a href="#specials">Promotions</a></li>
-                    <li><a href="#events">Events</a></li>
-                    <li><a href="{{ path('ADD') }}">Hotels</a></li>
-                    <li><a href="#chefs">Offres</a></li>
-                    <li><a href="#reclamation">Reclamation</a></li>
-                    <li><a href="#joinUs">JoinUs</a></li>
-
-                    {% if app.user %}
-                        <div class="active">
-                            Welcome {{ app.user.username }}, <a class="active" href="{{ path('app_logout') }}">Logout</a>
-                        </div>
-
-                    {% else %}
-                        <li class="book-a-table text-center"><a href="{{ path('app_login') }}">Login</a></li>
-                        <li class="book-a-table text-center" style="padding-left: 7px;"><a href="{{ path('app_register') }}">Register</a></li>
-                    {% endif %}
-
-
-                </ul>
-            </nav><!-- .nav-menu -->
-
-        </div>
-    </header><!-- End Header -->
-
-{% endblock %}
-
 {% block home %}
     <section id="hero" class="d-flex align-items-center">
         <div class="container position-relative text-center text-lg-left" data-aos="zoom-in" data-aos-delay="100">
