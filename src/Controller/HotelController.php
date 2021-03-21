@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Hotel;
+use App\Entity\Reservation;
 use App\Form\HotelType;
+use App\Form\ReservationFormType;
 use App\Repository\HotelRepository;
 //use http\Env\Request;
 use Knp\Component\Pager\PaginatorInterface;
@@ -33,6 +35,88 @@ class HotelController extends AbstractController
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;
+    }
+
+
+    /**
+     * @param HotelRepository $repo
+     * @return Response
+     * @Route("/book/{idhotel}",name="book-hotel")
+     */
+    public function bookHotel(Request $request,$idhotel,HotelRepository $repo)
+    {
+
+        $hotel = $repo->find($idhotel);
+
+        $reservation = new Reservation();
+
+        $form = $this->createForm(ReservationFormType::class,$reservation);
+
+        $form->handleRequest($request);
+
+        $form->add('Book',SubmitType::class);
+
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+
+        // $user = $this->getUser();
+
+
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $em = $this->getDoctrine()->getManager();
+            $NbRoomChosen = $form->get('numberOfRooms')->getData();
+            $roomtype = $form->get('roomType')->getData();
+            $numberofnights = $form->get('numberOfNights')->getData();
+
+            if ($NbRoomChosen>$hotel->getAvailableRooms())
+            {
+                return $this->redirectToRoute('afficheHotel',['idhotel'=>$hotel->getId()]);
+            }
+            else
+            {
+
+                if ( $roomtype == 'half pension' and $numberofnights < 15)
+                {
+
+                    $reservation->setTotal(100 * $numberofnights);
+
+                }
+                if ($roomtype =='full pension' and $numberofnights < 15) {
+
+                    $reservation->setTotal(200 * $numberofnights);
+                }
+
+                if ($roomtype == 'All Inclusive' and $numberofnights < 15) {
+
+                    $reservation->setTotal(300 * $numberofnights);
+
+                }
+
+
+                if ($roomtype=='All inclusive Soft Drink' and $numberofnights < 15) {
+                    $reservation->setTotal(400 * $numberofnights);
+                }
+
+
+
+
+                $reservation->setNumberOfrooms($NbRoomChosen);
+
+                $reservation->setUser($user);
+                $reservation->setHotelReservation($hotel);
+                $em->persist($reservation);
+                $em->flush();
+
+                return $this->redirectToRoute('reservation',['idreservation'=>$reservation->getId()]);
+            }
+
+            //return $this->redirectToRoute('reservation', array('id' => $reservation->getId()));
+
+        }
+
+
+        return $this->render('reservation/form-reservation.html.twig',
+            ['form'=> $form->createView()]);
     }
 
 
@@ -71,23 +155,24 @@ class HotelController extends AbstractController
         }
 
 
-    /**
-     * @Route ("/Supp/{id}",name="d")
-     * @param Request $request
-     * @param Hotel $hotel
-     */
-    public function Delete(Request $request, Hotel $hotel)
-    {
-        $form = $this->createDeleteForm($hotel);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($hotel);
-            $em->flush();
-        }
 
-        return $this->redirectToRoute('AfficheHotel');
-    }
+//    /**
+//     * @Route ("/Supp/{id}",name="d")
+//     * @param Request $request
+//     * @param Hotel $hotel
+//     */
+//    public function Delete(Request $request, Hotel $hotel)
+//    {
+//        $form = $this->createDeleteForm($hotel);
+//        $form->handleRequest($request);
+//        if ($form->isSubmitted() && $form->isValid()) {
+//            $em = $this->getDoctrine()->getManager();
+//            $em->remove($hotel);
+//            $em->flush();
+//        }
+//
+//        return $this->redirectToRoute('AfficheHotel');
+//    }
     //function Delete($id,HotelRepository $repository){
      //   $Hotel=$repository->find($id);
      //   $em=$this->getDoctrine()->getManager();

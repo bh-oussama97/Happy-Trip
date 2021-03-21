@@ -2,97 +2,81 @@
 
 namespace App\Controller;
 
-use App\Form\ReservationType;
+
+use App\Entity\Reservation;
+use App\Form\ReservationFormType;
+use App\Repository\HotelRepository;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Entity\Reservation;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-
-use Symfony\Component\HttpFoundation\Request;
-
-
-
-
-
+/**
+ *
+ * @Route ("/reservation")
+ */
 class ReservationController extends AbstractController
 {
-    /**
-     * @Route("/reservation", name="reservation")
-     */
-    public function index(): Response
-    {
-        return $this->render('reservation/index.html.twig', [
-            'controller_name' => 'ReservationController',
-        ]);
-    }
 
 
     /**
-     * @param ReservationRepository $repository
      * @return Response
-     * @Route("/AfficheReservation",name="AfficheReservation")
+     * @Route("/{idreservation}",name="reservation")
      */
-    public function Affiche( ReservationRepository $repository){
-        //$repo=$this->getDoctrine()->getRepository(Hotel::class) ;
-        $Reservation=$repository->findAll();
-        return $this->render(' reservation/Affiche.html.twig' , [' Reservation'=>$Reservation]);
-    }
 
-    /**
-     * @Route ("/Supp/{id}",name="d")
-     */
-    function Delete($id, ReservationRepository $repository){
-        $Reservation=$repository->find($id);
-        $em=$this->getDoctrine()->getManager();
-        $em->remove($Reservation);
-        $em->flush();
-        return $this->redirectToRoute('AfficheReservation');
-
-    }
-
-    /**
-     * @param Request $request
-     * @return Response
-     * @Route ("/Reservation/Add")
-     */
-    function Add(Request $request){
-        $Reservation=new Reservation();
-        $form=$this->createForm(ReservationType::class,$Reservation);
-        $form->add('Ajouter',SubmitType::class);
-        $form->handleRequest($request);
-        //
-        if($form->isSubmitted() && $form->isValid()){
-            $em=$this->getDoctrine()->getManager();
-            $em->persist($Reservation);
-            $em->flush();
-            return $this->redirectToRoute('AfficheReservation');
-        }
-        return $this->render('reservation/Add.html.twig',[
-            'form'=>$form->createView()
-        ]) ;
-    }
-
-    /**
-     * @Route ("reservation/Modifier/{id}",name="modifier")
-     */
-    function Modifier(ReservationRepository $repository,$id,Request $request)
+    public function createReservation($idreservation,Request $request)
     {
-        $Reservation=$repository->find($id);
-        $form=$this->createForm(ReservationType::class,$Reservation);
-        $form->add('Modifier',SubmitType::class);
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
-            $em=$this->getDoctrine()->getManager();
-            $em->flush();
-            return $this->redirectToRoute('AfficheReservation');
-        }
-        return $this->render('reservation/Modifier.html.twig',
-            ['f'=>$form->createView()]);
+        $em = $this->getDoctrine()->getManager();
+        $reservation=$em->getRepository(Reservation::class)->find($idreservation);
+
+        return $this->render('reservation/create-reservation.html.twig',['res'=>$reservation]);
+    }
+
+
+    /**
+     * @param $id
+     * @return Response
+     * @Route("/confirm/{id}",name="confirm")
+     */
+    public function confirm($id)
+    {
+        $user = $this->getUser();
+        $am = $this->getDoctrine()->getManager();
+        $res = $am->getRepository(Reservation::class)->find($id);
+        $res->getUser()->setUser($user);
+        $am->flush();
+        return $this->redirectToRoute('afficheHotel');
+    }
+
+    /**
+     * @param $id
+     * @return Response
+     * @Route("/reject/{id}",name="reject")
+     */
+    public function rejectAction($id)
+    {
+
+        $sn = $this->getDoctrine()->getManager();
+        $res = $sn->getRepository(Reservation::class) ->find($id);
+        //$res->getRentProd()->setQuantity($res->getRentProd()->getQuantity()+$res->getQuantity());
+        $sn->remove($res);
+        $sn->flush();
+        return $this->redirectToRoute('afficheHotel', ['id' => $res->getHotelReservation()->getId()]);
 
     }
+//    /**
+//     * @Route("/reservation/{idhotel}",name="reservation")
+//     * @return Response
+//     */
+//
+//
+//    public function bookAHotel(Request $request,$idhotel,HotelRepository $hotelrepo,ReservationRepository $reserrepo)
+//    {
+//        $hotel = $hotelrepo->find($idhotel);
+//
+//
+//    }
 
 }

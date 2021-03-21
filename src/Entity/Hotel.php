@@ -67,10 +67,55 @@ class Hotel
      */
     private $comments;
 
+
     /**
      * @ORM\OneToOne(targetEntity=Reservation::class, mappedBy="hotel_reservation", cascade={"persist", "remove"})
      */
     private $reservation;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $adresse;
+
+    /**
+     * @return mixed
+     */
+    public function getAvailableRooms()
+    {
+        return $this->availableRooms;
+    }
+
+    /**
+     * @param mixed $availableRooms
+     */
+    public function setAvailableRooms($availableRooms): void
+    {
+        $this->availableRooms = $availableRooms;
+    }
+
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $availableRooms;
+
+    /**
+     * @return mixed
+     */
+    public function getAdresse()
+    {
+        return $this->adresse;
+    }
+
+    /**
+     * @param mixed $adresse
+     */
+    public function setAdresse($adresse): void
+    {
+        $this->adresse = $adresse;
+    }
+
 
     public function __construct()
     {
