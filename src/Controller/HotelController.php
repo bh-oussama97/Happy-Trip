@@ -54,9 +54,9 @@ class HotelController extends AbstractController
 
         $form->handleRequest($request);
 
-        $form->add('Book',SubmitType::class);
+//        $form->add('Book',SubmitType::class);
 
-        $user = $this->container->get('security.token_storage')->getToken()->getUser();
+       // $user = $this->container->get('security.token_storage')->getToken()->getUser();
 
         // $user = $this->getUser();
 
@@ -64,12 +64,13 @@ class HotelController extends AbstractController
         if ($form->isSubmitted() && $form->isValid())
         {
             $em = $this->getDoctrine()->getManager();
-            $NbRoomChosen = $form->get('numberOfRooms')->getData();
+            $NbRoomChosen = $form->get('numberOfrooms')->getData();
             $roomtype = $form->get('roomType')->getData();
             $numberofnights = $form->get('numberOfNights')->getData();
 
             if ($NbRoomChosen>$hotel->getAvailableRooms())
             {
+
                 return $this->redirectToRoute('afficheHotel',['idhotel'=>$hotel->getId()]);
             }
             else
@@ -98,11 +99,9 @@ class HotelController extends AbstractController
                 }
 
 
-
-
                 $reservation->setNumberOfrooms($NbRoomChosen);
 
-                $reservation->setUser($user);
+                $reservation->setUser(null);
                 $reservation->setHotelReservation($hotel);
                 $em->persist($reservation);
                 $em->flush();
@@ -126,19 +125,104 @@ class HotelController extends AbstractController
      * @return Response
      * @Route("/all",name="afficheHotel")
      */
-    public function Affiche(Request $request,PaginatorInterface $paginator)
+    public function Affiche(Request $request,PaginatorInterface $paginator,HotelRepository $hotelrepo)
     {
+        $hotelss = new Hotel();
+        $hotel = new Hotel();
+        $q = $request->get('q', null);
+
         $em = $this->getDoctrine()->getManager();
 
-        $hotel= $em->getRepository(Hotel::class)->findAll();
 
-        $hotel = $paginator->paginate(
-            $hotel,
-            $request->query->getInt('page',1),
-            3
-        );
-        return $this->render('hotel/Affiche.html.twig' , ['hotels'=>$hotel]);
+        if (empty($q))
+        {
+            $hotel= $em->getRepository(Hotel::class)->findAll();
+            $hotel = $paginator->paginate(
+                $hotel,
+                $request->query->getInt('page',1),
+                3
+            );
+        }
+        else
+        {
+            $hotelss = $hotelrepo->rechercherParNom($q);
+            $hotel = $paginator->paginate(
+                $hotelss,
+                $request->query->getInt('page',1),
+                3
+            );
+        }
+
+
+        return $this->render('hotel/Affiche.html.twig' , ['hotels'=>$hotel,'hotelssearch'=>$hotelss,'search'=>$q]);
     }
+
+//    /**
+//     * @param HotelRepository $repository
+//     * @return Response
+//     * @Route("/search",name="searchHotel")
+//     */
+//    public function Search(Request $request,PaginatorInterface $paginator,HotelRepository $hotelrepo)
+//    {
+//
+//        $q = $request->get('q', null);
+//
+//        $em = $this->getDoctrine()->getManager();
+//
+//
+//        if (empty($q))
+//        {
+//            $hotel= $em->getRepository(Hotel::class)->findAll();
+//            $hotel = $paginator->paginate(
+//                $hotel,
+//                $request->query->getInt('page',1),
+//                3
+//            );
+//        }
+//        else
+//        {
+//            $hotels = $hotelrepo->rechercherParNom($q);
+//            $hotels = $paginator->paginate(
+//                $hotels,
+//                $request->query->getInt('page',1),
+//                3
+//            );
+//        }
+//
+//
+//        return $this->render('hotel/Affiche.html.twig' , ['hotels'=>$hotel,'hotelssearch'=>$hotels,'search'=>$q]);
+//    }
+
+
+//    /**
+//     * @param Request $request
+//     * @Route("/search",name="ajax_search")
+//     */
+//    public function searchAction(Request $request,HotelRepository $hotelrepo)
+//    {
+//        $hotel = new Hotel();
+//        $em = $this->getDoctrine()->getManager();
+//        $requestString = $request->get('q');
+//        $hotel =  $hotelrepo->findHotelsByName($requestString);
+//        if(!$hotel)
+//        {
+//            $result['hotel']['error'] = "Hotel Not found :( ";
+//        } else {
+//            $result['hotel'] = $this->getHotels($hotel);
+//        }
+//        return new Response(json_encode($result));
+//    }
+//
+//    public function getHotels($hotel){
+//        foreach ($hotel as $hotel)
+//        {
+//            $realHotels[$hotel->getId()] = [$hotel->getImage(),$hotel->getName(),$hotel->getStarsNumber()];
+//
+//        }
+//        return $realHotels;
+//    }
+
+
 
     /**
      * @param HotelRepository $repository

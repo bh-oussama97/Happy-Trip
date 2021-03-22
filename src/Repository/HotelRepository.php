@@ -13,7 +13,37 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Hotel[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class HotelRepository extends ServiceEntityRepository
+
 {
+//    public function findHotelsByName($str)
+//    {
+//        return $this->getEntityManager()
+//            ->createQuery(
+//                'SELECT h
+//                FROM App\Entity Hotel h
+//                WHERE p.name LIKE :str'
+//            )
+//            ->setParameter('str', '%'.$str.'%')
+//            ->getResult();
+//    }
+
+
+
+
+    public function rechercherParNom($str ){
+
+        $dql='Select h 
+            FROM App\Entity\Hotel h
+         WHERE   h.name LIKE :str  ';
+        $em = $this->getEntityManager();
+        $query = $em->createQuery($dql)->setParameter('str', '%'.$str.'%');
+        return  $query->getResult();
+
+    }
+
+
+
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Hotel::class);

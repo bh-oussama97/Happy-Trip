@@ -41,8 +41,8 @@
         "symfonycasts/verify-email-bundle": "^1.2",
         "symfony/amazon-mailer": "4.4.*",
         "knplabs/knp-paginator-bundle": "^5.4",
-        "cr/hashcli": "dev-master"
-
+        "cr/hashcli": "dev-master",
+        "ext-json": "*"
     },
     "require-dev": {
         "symfony/browser-kit": "^4.4",

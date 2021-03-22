@@ -14,10 +14,10 @@
 
 {#                <form class="php-email-form"#}
 {#                      data-aos="fade-up" >#}
-                    {{ form_start(form,{'method':'post','action':path('book-hotel',{'idhotel':details.id})}) }}
-                    {{ form_errors(form) }}
+                    {{ form_start(form) }}
+
                     <div class="form-row">
-                        <div class="col-lg-4 col-md-6 form-group {% if not form.startDate.vars.valid %}has-error{% endif %}">
+                        <div class="col-lg-4 col-md-6 form-group ">
                             <label class="form-label">Start Date</label>
 
                             {{ form_widget(form.startDate,{'attr':{'class':'form-control','style':'background:#fff;color:black;'}}) }}
@@ -53,13 +53,7 @@
                         </div>
 
                     </div>
-
-                    <div class="form-row">
-                        <div class="text-center">
-                          {{ form_widget(form.Book) }}
-                        </div>&nbsp;&nbsp;
-                    </div>
-{#                </form>#}
+                    {{ form_widget(form.Book,{'attr':{'class':'button-book','style':'color:white;'}}) }}
                 {{ form_end(form) }}
             </div>
         </section>

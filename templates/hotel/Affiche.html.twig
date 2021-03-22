@@ -15,7 +15,7 @@
                     <div class="btns">
                         <a href="#hotels" class="btn-menu animated fadeInUp scrollto">Hotels </a>
                         {% if app.user %}
-                        <a href="#" class="btn-book animated fadeInUp scrollto">Book Now</a>
+                            <a href="#" class="btn-book animated fadeInUp scrollto">Book Now</a>
                         {% else %}
                             <a href="{{ path('app_login') }}" class="btn-book animated fadeInUp scrollto">Book Now</a>
                         {% endif %}
@@ -36,32 +36,41 @@
         <div class="section-title">
             <h2>Hotels</h2>
             <p>Hotels List</p>
+            <form action="" method="get">
+                <div class="input-group" style="width: 24%;float: right;">
+                    <div class="form-outline">
+                        <input type="text" class="form-control" id="search" name='q' placeholder="Search"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary" >
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            <br>
         </div>
-
         <div class="row">
             {% for h in hotels %}
-            <div class="col-lg-4 col-md-6">
-                <div class="member" data-aos="zoom-in" data-aos-delay="100">
+                <div class="col-lg-4 col-md-6">
+                    <div class="member" data-aos="zoom-in" data-aos-delay="100" id="hotelitem">
 
-                        <img src="{{ vich_uploader_asset(h,'imageHotel') }}" class="img-fluid" >
-
-                    <div class="member-info">
-                        <div class="member-info-content">
-                            <a href="{{ path('details_hotels',{'id':h.id}) }}">
-                            <h4>{{ h.name }}</h4>
-                            </a>
-                            {% set nombre_etoiles = h.starsNumber %}
-                            {% for i in range(1, 5) %}
-                                {% if i <= nombre_etoiles %}
-                                    <i class="fa fa-star style-etoile" > </i>
-                                {% else %}
-                                    <span class="not-active"> </span>
-                                {% endif %}
-                            {% endfor %}
+                        <img id="image" src="{{ vich_uploader_asset(h,'imageHotel') }}" class="img-fluid">
+                        <div class="member-info">
+                            <div class="member-info-content">
+                                <a href="{{ path('details_hotels',{'id':h.id}) }}">
+                                    <h4 id="hotelname">{{ h.name }}</h4>
+                                </a>
+                                {% set nombre_etoiles = h.starsNumber %}
+                                {% for i in range(1, 5) %}
+                                    {% if i <= nombre_etoiles %}
+                                        <i id="starsnumber" class="fa fa-star style-etoile"> </i>
+                                    {% else %}
+                                        <span class="not-active"> </span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             {% endfor %}
 
         </div>

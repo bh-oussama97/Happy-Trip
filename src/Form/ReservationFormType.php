@@ -34,14 +34,12 @@ class ReservationFormType extends AbstractType
                         'required'=>true
                     ]
                 ])
-            ->add('numberOfrooms',ChoiceType::class,
+            ->add('numberOfrooms',IntegerType::class,
             [
-                'choices'=> [
-                    '1 room'=> 1,
-                    '2 rooms'=> 2,
-                    '3 rooms'=> 3,
-                    '4 rooms'=> 4,
-                    '5 rooms' => 5
+                'attr'=> [
+                    'min'=>1,
+                    'max'=>5,
+                    'required'=>true
                 ]
             ])
             ->add('numberOfAdults',IntegerType::class,[
@@ -61,10 +59,10 @@ class ReservationFormType extends AbstractType
             ->add('roomType',ChoiceType::class,[
                 'choices' => [
 
-                    'half pension'=> 'semi pension',
-                    'full pension'=> 'pension complète',
-                    'All Inclusive'=> 'all inclusive',
-                    'All inclusive Soft Drink' => 'all inclusive soft drink'
+                    'half pension'=> 'half pension',
+                    'full pension'=> 'full pension',
+                    'All Inclusive'=> 'All Inclusive',
+                    'All inclusive Soft Drink' => 'All inclusive Soft Drink'
 
                 ],
                 'placeholder'=>'choose an option'

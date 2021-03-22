@@ -45,7 +45,7 @@ class ReservationController extends AbstractController
         $user = $this->getUser();
         $am = $this->getDoctrine()->getManager();
         $res = $am->getRepository(Reservation::class)->find($id);
-        $res->getUser()->setUser($user);
+//        $res->getUser()->setUser($user);
         $am->flush();
         return $this->redirectToRoute('afficheHotel');
     }
