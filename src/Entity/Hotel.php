@@ -54,11 +54,14 @@ class Hotel
      */
     private $image;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
+
 
     /**
-     * @Vich\UploadableField(mapping="happyTrip_images", fileNameProperty="image")
-     * @Assert\NotBlank(message="please select an image")
-     * @var File
+     * @Vich\UploadableField(mapping="uploads", fileNameProperty="image")
      */
     private $imageHotel;
 
@@ -119,6 +122,7 @@ class Hotel
 
     public function __construct()
     {
+        $this->updatedAt = new \DateTime();
         $this->comments = new ArrayCollection();
     }
 
@@ -222,19 +226,23 @@ class Hotel
     }
 
     /**
-     * @return File
+     * @return mixed
      */
-    public function getImageHotel(): File
+    public function getImageHotel()
     {
         return $this->imageHotel;
     }
 
     /**
-     * @param File $imageHotel
+     * @param mixed $imageHotel
      */
-    public function setImageHotel(File $imageHotel): void
+    public function setImageHotel($imageHotel): void
     {
         $this->imageHotel = $imageHotel;
+
+        if ($imageHotel) {
+          $this->updatedAt = new \DateTime();
+        }
     }
 
     /**
@@ -280,6 +288,18 @@ class Hotel
         }
 
         $this->reservation = $reservation;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

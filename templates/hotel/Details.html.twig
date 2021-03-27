@@ -16,7 +16,7 @@
                         {% if app.user %}
                             <a href="#" class="btn-book animated fadeInUp scrollto">Book Now</a>
                         {% else %}
-                            <a href="{{ path('app_login') }}" class="btn-book animated fadeInUp scrollto">Book Now</a>
+                            <a href="{{ path('app_login') }}" class="btn-book animated fadeInUp scrollto">Login</a>
                         {% endif %}
                     </div>
                 </div>
@@ -67,9 +67,11 @@
                         <p class="font-italic">
                        {{ details.description}}
                         </p>
+                        {%if app.user and is_granted('ROLE_INTERNAUTE')%}
                         <button class="button-book">
                             <a href="{{ path('book-hotel',{'idhotel':details.id})}}" style="color:white;" >Book Now</a>
                         </button>
+                        {%endif%}
                     </div>
                 </div>
 
@@ -78,4 +80,3 @@
     {% endblock %}
 
 {% endblock %}
-

@@ -2,8 +2,8 @@ security:
     encoders:
         App\Entity\User:
             algorithm: auto
+
     role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
         ROLE_SUPER_ADMIN: ROLE_ADMIN
         ROLE_INTERNAUTE: ROLE_INTERNAUTE
 
@@ -18,20 +18,17 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
         main:
-
-            anonymous: lazy
+            anonymous: true
             provider: app_user_provider
-            remember_me:
-                secret: '%kernel.secret%'
-                lifetime: 604800 # 1 week in seconds
-                path: /
             guard:
                 authenticators:
-                    - App\Security\LoginFormAuthenticator
+                    - App\Security\UserAuthenticator
             logout:
                 path: app_logout
+
+                # where to redirect after logout
+                # target: app_any_route
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -42,5 +39,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-         - { path: ^/admin, roles: ROLE_ADMIN }
-         - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_INTERNAUTE }
+#        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }

@@ -101,7 +101,7 @@ class HotelController extends AbstractController
 
                 $reservation->setNumberOfrooms($NbRoomChosen);
 
-                $reservation->setUser(null);
+                $reservation->setUser($this->getUser());
                 $reservation->setHotelReservation($hotel);
                 $em->persist($reservation);
                 $em->flush();
@@ -308,5 +308,3 @@ class HotelController extends AbstractController
     }
 
 }
-
-

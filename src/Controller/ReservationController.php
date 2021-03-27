@@ -38,16 +38,15 @@ class ReservationController extends AbstractController
     /**
      * @param $id
      * @return Response
-     * @Route("/confirm/{id}",name="confirm")
+     * @Route("/confirm/{id}/{total}",name="confirm")
      */
-    public function confirm($id)
+    public function confirm($id,$total)
     {
         $user = $this->getUser();
         $am = $this->getDoctrine()->getManager();
         $res = $am->getRepository(Reservation::class)->find($id);
-//        $res->getUser()->setUser($user);
         $am->flush();
-        return $this->redirectToRoute('afficheHotel');
+        return $this->redirectToRoute('pay',['total'=>$total]);
     }
 
     /**
@@ -60,23 +59,10 @@ class ReservationController extends AbstractController
 
         $sn = $this->getDoctrine()->getManager();
         $res = $sn->getRepository(Reservation::class) ->find($id);
-        //$res->getRentProd()->setQuantity($res->getRentProd()->getQuantity()+$res->getQuantity());
         $sn->remove($res);
         $sn->flush();
         return $this->redirectToRoute('afficheHotel', ['id' => $res->getHotelReservation()->getId()]);
 
     }
-//    /**
-//     * @Route("/reservation/{idhotel}",name="reservation")
-//     * @return Response
-//     */
-//
-//
-//    public function bookAHotel(Request $request,$idhotel,HotelRepository $hotelrepo,ReservationRepository $reserrepo)
-//    {
-//        $hotel = $hotelrepo->find($idhotel);
-//
-//
-//    }
 
 }

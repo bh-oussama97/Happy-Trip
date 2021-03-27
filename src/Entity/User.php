@@ -8,20 +8,17 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @Vich\Uploadable
+ * @ORM\Table(name="`user`")
  * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -30,6 +27,17 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
+
+    /**
+     * @ORM\Column(type="string", length=180, unique=true)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="string", nullable=true, length=6, unique=true)
+     */
+     private $codeGenerated = null;
+
 
     /**
      * @ORM\Column(type="json")
@@ -43,105 +51,14 @@ class User implements UserInterface, \Serializable
     private $password;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="image", type="string", length=255, nullable=false)
+     * @ORM\OneToMany(targetEntity="Reclamation", mappedBy="user")
      */
-    private $image;
-
-    /**
-     * @Vich\UploadableField(mapping="happyTrip_images", fileNameProperty="image")
-     * @Assert\NotBlank(message="please select an image")
-     * @var File
-     */
-    private $imageFile;
-
-    /**
-     * @see \Serializable::serialize()
-     */
-    public function serialize()
-    {
-        $this->imageFile = base64_encode($this->imageFile);
-    }
-
-    /**
-     * @see \Serializable::unserialize()
-     */
-    public function unserialize($serialized)
-    {
-        $this->imageFile = base64_decode($this->imageFile);
-    }
-
-    /**
-     * @return File
-     */
-    public function getImageFile()
-    {
-        return $this->imageFile;
-    }
-
-    /**
-     * @param File $imageFile
-     */
-    public function setImageFile($imageFile)
-    {
-        $this->imageFile = $imageFile;
-    }
-    /**
-     * @return string
-     */
-    public function getImage()
-    {
-        return $this->image;
-    }
-
-    /**
-     * @param string $image
-     */
-    public function setImage($image)
-    {
-        $this->image = $image;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    /**
-     * @param mixed $username
-     */
-    public function setUsername($username): void
-    {
-        $this->username = $username;
-    }
-
-
-
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
-    private $username;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $isVerified = false;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Reservation::class, mappedBy="user")
-     */
-    private $reservations;
+    private $reclamations;
 
     public function __construct()
     {
-        $this->reservations = new ArrayCollection();
+        $this->reclamations = new ArrayCollection();
     }
-
-
 
     public function getId(): ?int
     {
@@ -160,7 +77,23 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        return (string) $this->username;
+    }
 
+    /**
+     * @param mixed $username
+     */
+    public function setUsername($username): void
+    {
+        $this->username = $username;
+    }
 
     /**
      * @see UserInterface
@@ -170,7 +103,6 @@ class User implements UserInterface, \Serializable
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
-
 
         return array_unique($roles);
     }
@@ -217,44 +149,48 @@ class User implements UserInterface, \Serializable
         // $this->plainPassword = null;
     }
 
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): self
-    {
-        $this->isVerified = $isVerified;
-
-        return $this;
+    public function __toString() {
+      return $this->username;
     }
 
     /**
-     * @return Collection|Reservation[]
+     * @return Collection|Reclamation[]
      */
-    public function getReservations(): Collection
+    public function getReclamations(): Collection
     {
-        return $this->reservations;
+        return $this->reclamations;
     }
 
-    public function addReservation(Reservation $reservation): self
+    public function addReclamation(Reclamation $reclamation): self
     {
-        if (!$this->reservations->contains($reservation)) {
-            $this->reservations[] = $reservation;
-            $reservation->setUser($this);
+        if (!$this->reclamations->contains($reclamation)) {
+            $this->reclamations[] = $reclamation;
+            $reclamation->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeReservation(Reservation $reservation): self
+    public function removeReclamation(Reclamation $reclamation): self
     {
-        if ($this->reservations->removeElement($reservation)) {
+        if ($this->reclamations->removeElement($reclamation)) {
             // set the owning side to null (unless already changed)
-            if ($reservation->getUser() === $this) {
-                $reservation->setUser(null);
+            if ($reclamation->getUser() === $this) {
+                $reclamation->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCodeGenerated(): ?string
+    {
+        return $this->codeGenerated;
+    }
+
+    public function setCodeGenerated(string $codeGenerated): self
+    {
+        $this->codeGenerated = $codeGenerated;
 
         return $this;
     }

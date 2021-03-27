@@ -3,52 +3,77 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\TemporalUser;
 use App\Form\RegistrationFormType;
-use App\Security\EmailVerifier;
-use App\Security\LoginFormAuthenticator;
-use App\Repository\UserRepository;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use App\Security\UserAuthenticator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
-use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
-    private $emailVerifier;
 
-    public function __construct(EmailVerifier $emailVerifier)
-    {
-        $this->emailVerifier = $emailVerifier;
-    }
+  public function generateRandomString($length = 6, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+  {
+      $charactersLength = strlen($characters);
+      $randomString = '';
+      for ($i = 0; $i < $length; $i++) {
+          $randomString .= $characters[rand(0, $charactersLength - 1)];
+      }
+      return $randomString;
+  }
 
     /**
      * @Route("/register", name="app_register")
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator): Response
+    public function register(\Swift_Mailer $mailer, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, UserAuthenticator $authenticator): Response
     {
         $user = new User();
+        $tempuser = new TemporalUser();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+          try {
+            $random =''.$this->generateRandomString();
+            $tempuser->setEmail($user->getEmail());
+            $tempuser->setCodeGenerated($random);
+            $tempuser->setUsername($user->getUsername());
+
+            $entityManagerTemp = $this->getDoctrine()->getManager();
+            $entityManagerTemp->persist($tempuser);
+            $entityManagerTemp->flush();
+            $id = $tempuser->getId();
+          $message = (new \Swift_Message('Verify your account'))
+        ->setFrom('benhassenoussama1@gmail.com')
+        ->setTo($user->getEmail())
+        ->setBody(
+            'Thanks for registering to our website !
+            <br>Please <a href = "http://localhost:8000/verify/'.$id.'">
+            verify your account</a> by entering this code:<br>'.$random,
+            'text/html'
+        );
+            $mailer->send($message);
+
+          } catch (Exception $e) {
+            dd ('Unable to send email');
+            dd ($user->getEmail());
+          }
             // encode the plain password
             $user->setPassword(
                 $passwordEncoder->encodePassword(
                     $user,
-                    $form->get('password')->getData()
+                    $form->get('plainPassword')->getData()
                 )
             );
+            $user->setRoles(array('ROLE_INTERNAUTE'));
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-
-
             // do anything else you need here, like send an email
 
             return $guardHandler->authenticateUserAndHandleSuccess(
@@ -57,43 +82,11 @@ class RegistrationController extends AbstractController
                 $authenticator,
                 'main' // firewall name in security.yaml
             );
+            return $this->redirectToRoute('app_verify', array('id' => $tempuser->getId()));
         }
-
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
-    }
-
-    /**
-     * @Route("/verify/email", name="app_verify_email")
-     */
-    public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
-    {
-        $id = $request->get('id');
-
-        if (null === $id) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        $user = $userRepository->find($id);
-
-        if (null === $user) {
-            return $this->redirectToRoute('app_login');
-        }
-
-        // validate email confirmation link, sets User::isVerified=true and persists
-        try {
-            $this->emailVerifier->handleEmailConfirmation($request, $user);
-        } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $exception->getReason());
-
-            return $this->redirectToRoute('app_login');
-        }
-
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
-
-        return $this->redirectToRoute('app_login');
     }
 }
